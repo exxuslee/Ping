@@ -1,4 +1,4 @@
-package com.example.ping.ui.theme
+package org.haos.exxuslee.ping.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme

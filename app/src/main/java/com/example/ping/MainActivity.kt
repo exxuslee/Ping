@@ -1,4 +1,4 @@
-package com.example.ping
+package org.haos.exxuslee.ping
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ping.ui.theme.PingTheme
+import org.haos.exxuslee.ping.ui.theme.PingTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ping"
+    namespace = "org.haos.exxuslee.ping"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.ping"
+        applicationId = "org.haos.exxuslee.ping"
         minSdk = 26
         versionCode = 1
         versionName = "1.0"
