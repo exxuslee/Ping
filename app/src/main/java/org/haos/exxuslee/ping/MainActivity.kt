@@ -41,6 +41,14 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.IOException
+import java.net.HttpURLConnection
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.URL
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +64,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PingApp() {
     val scope = rememberCoroutineScope()
-    var address by rememberSaveable { mutableStateOf("8.8.8.8") }
+    var address by rememberSaveable { mutableStateOf("https://google.com") }
     var isPinging by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf<String?>(null) }
     val pingResults = remember { mutableStateListOf<String>() }
@@ -167,29 +175,24 @@ fun PingApp() {
     }
 }
 
-private suspend fun pingHost(host: String): Double = withContext(Dispatchers.IO) {
-    val process = ProcessBuilder("ping", "-c", "1", host)
-        .redirectErrorStream(true)
-        .start()
+private suspend fun pingHost(url: String): Long = withContext(Dispatchers.IO) {
+    val client = OkHttpClient.Builder()
+        .connectTimeout(5, TimeUnit.SECONDS)
+        .build()
 
-    val finished = process.waitFor(5, TimeUnit.SECONDS)
-    val output = process.inputStream.bufferedReader().readText()
+    val request = Request.Builder()
+        .url(url)
+        .head() // Используем HEAD для минимального трафика
+        .build()
 
-    if (!finished) {
-        process.destroy()
-        throw IllegalStateException("Пинг не завершился вовремя")
+    val startTime = System.currentTimeMillis()
+
+    client.newCall(request).execute().use { response ->
+        if (!response.isSuccessful) {
+            throw IOException("Unexpected code $response")
+        }
+        System.currentTimeMillis() - startTime
     }
-
-    if (process.exitValue() != 0) {
-        throw IllegalStateException(output.lineSequence().firstOrNull() ?: "Не удалось выполнить ping")
-    }
-
-    val timeRegex = Regex("time=([0-9.]+)\\s*ms")
-    val timeMatch = timeRegex.find(output)
-    val latency = timeMatch?.groupValues?.getOrNull(1)?.toDoubleOrNull()
-        ?: throw IllegalStateException("Не удалось прочитать время отклика")
-
-    latency
 }
 
 @Preview(showBackground = true)
